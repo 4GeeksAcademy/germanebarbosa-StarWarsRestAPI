@@ -8,8 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
-#from models import Person
+from models import db, User, Planet
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -37,13 +36,43 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_users():
+    all_users = User.query.all() #devuelve una lista[] del modelo a devolver, es decir el modelo.
+    result = list(map(lambda item: item.serialize(), all_users))
+    return jsonify(result), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/user/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    print(user_id)
+    user = User.query.filter_by(id=user_id)
+    print(user)
+    return jsonify(user.serialize()), 200
 
-    return jsonify(response_body), 200
+@app.route('/planet', methods=['GET'])
+def get_planets():
+    all_planets = Planet.query.all() #devuelve una lista[] del modelo a devolver, es decir el modelo.
+    result = list(map(lambda item: item.serialize(), all_planets))
+    return jsonify(result), 200
+
+# @app.route('/people', methods=['GET'])
+# def get_people():
+#     all_people = People.query.all() #devuelve una lista[] del modelo a devolver, es decir el modelo.
+#     result = list(map(lambda item: item.serialize(), all_people))
+#     return jsonify(result), 200
+
+# @app.route('/people', methods=['POST'])
+# def create_planet():
+#     body = request.get_json()
+#     planet = Planet(planet_name = body["planet_name"],population = body["population"])
+#     db.session.add(planet) #agrega el registro a la tabla
+#     db.session.commit() #guarda los cambios
+
+#     print(request.get_json())
+#     response_body = {
+#         "msg":"se creo planet"
+#     }
+
+#     return jsonify(response_body), 200 
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
